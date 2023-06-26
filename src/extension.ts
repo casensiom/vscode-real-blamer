@@ -1,26 +1,54 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { BlameInfo, getBlameInfo } from './gitblame';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+function open_blame() {
+	const editor = vscode.window.activeTextEditor;
+	if (!editor) {
+		vscode.window.showWarningMessage('Select a file to blame.');
+		return;
+	}
+
+	let bestRoot: string = "";
+	if (vscode.workspace.workspaceFolders) {
+		bestRoot = vscode.workspace.workspaceFolders[0].uri.path;
+	}
+
+	console.log('Using root path: ' + bestRoot);
+
+	getBlameInfo(editor.document.fileName, bestRoot)
+		.then((result) => {
+			const text = result.lines.map(l => {
+				// const blame: BlameInfo = result.commits.get(l.commit);
+				// blame.previous;
+				// const renamed: Boolean = editor.document.fileName != blame.filename;
+				// blame.author;
+
+				return l.line_number + " [" + l.commit.substring(0, 7) + "] " + l.content;
+			}).join('\n');
+
+			const myOutputChannel = vscode.window.createOutputChannel('Git blame');
+			myOutputChannel.show();
+			myOutputChannel.append(text);
+
+			// const newEditor = vscode.window.createTextEditor();
+			// newEditor.edit(editBuilder => {
+			//     editBuilder.insert(newEditor.document.positionAt(0), 'Hola, mundo!');
+			// }).then(() => {
+			//     vscode.window.showTextDocument(newEditor.document, newEditor.viewColumn);
+			// });
+		})
+		.catch((error) => {
+			vscode.window.showWarningMessage('Unexpected error in "vscode-real-blamer"! ' + error);
+		});
+
+
+}
+
+
 export function activate(context: vscode.ExtensionContext) {
-
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "vscode-real-blamer" is now active!');
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('vscode-real-blamer.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from vscode-real-blamer!');
-	});
-
+	let disposable = vscode.commands.registerCommand('vscode-real-blamer.gitblame', open_blame);
 	context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
 export function deactivate() { }
