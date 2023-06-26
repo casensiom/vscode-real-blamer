@@ -3,6 +3,11 @@
   "displayName": "vscode-real-blamer",
   "description": "git blame tool that shows commmit per line and lets you navigate through them",
   "version": "0.0.1",
+  "publisher": "casensiom",
+  "author": {
+    "name": "Carlos Asensio Martinez",
+    "email": "casensio@gmail.com"
+  },
   "engines": {
     "vscode": "^1.79.0"
   },
@@ -17,7 +22,16 @@
         "command": "vscode-real-blamer.gitblame",
         "title": "Real Blamer: Blame current file"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "vscode-real-blamer.gitblame",
+          "title": "Real Blamer: Blame current file",
+          "group": "Real Blamer"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

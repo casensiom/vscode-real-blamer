@@ -47,8 +47,9 @@ function open_blame() {
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, your extension "vscode-real-blamer" is now active!');
-	let disposable = vscode.commands.registerCommand('vscode-real-blamer.gitblame', open_blame);
-	context.subscriptions.push(disposable);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('vscode-real-blamer.gitblame', open_blame)
+	);
 }
 
 export function deactivate() { }
