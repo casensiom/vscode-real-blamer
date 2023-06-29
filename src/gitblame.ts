@@ -1,3 +1,4 @@
+import * as vscode from 'vscode';
 import * as cp from 'child_process';
 
 export interface BlameInfo {
@@ -56,7 +57,6 @@ function parseBlameOutput(output: string): BlameResult {
     const lines = output.trim().split('\n');
     for (const line of lines) {
         if (/^[a-z0-9]{40} [0-9]* [0-9]*( [0-9]*)?$/.test(line)) {
-            console.log('> [DEBUG] HASH found: ' + line);
             const pieces: string[] = line.split(' ');
             currentKey = pieces[0];
             currentCommit = newBlameInfo();
@@ -86,17 +86,14 @@ function parseBlameOutput(output: string): BlameResult {
         } else if (line.startsWith('filename ')) {               // filename       README.md
             currentCommit.filename = line.split(" ")[1];
         } else {
-            if (currentKey.length == 0) {
-                console.log('> [ERROR] No hash found: ' + line);
+            if (currentKey.length === 0) {
                 continue;
             }
 
             if (!blameMap.has(currentKey)) {
-                console.log('> [DEBUG] Insert hash: ' + currentKey);
                 blameMap.set(currentKey, currentCommit);
             }
 
-            console.log('> [DEBUG] Push line: ' + line);
             content.push({
                 commit: currentKey,
                 line_number: number,
@@ -133,6 +130,30 @@ export function getBlameInfo(filePath: string, rootPath: string | undefined): Pr
             }
 
             resolve(parseBlameOutput(stdout));
+        });
+    });
+}
+
+
+export function getBlameText(filePath: string, rootPath: string | undefined): vscode.ProviderResult<string> {
+    return new Promise((resolve, reject) => {
+        const command = `git blame --porcelain ${filePath}`;
+
+        cp.exec(command, {
+            cwd: rootPath
+        }, (error, stdout, stderr) => {
+            if (error) {
+                reject(new Error(`Error executing 'git blame': ${error.message}`));
+                return;
+            }
+
+            if (stderr) {
+                reject(new Error(`Error in 'git blame' output: ${stderr}`));
+                return;
+            }
+
+            const text = parseBlameOutput(stdout).lines.map(l => { return l.content; }).join('\n');
+            resolve(text);
         });
     });
 }
