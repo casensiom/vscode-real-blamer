@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { BlameInfo, getBlameInfo } from './gitblame';
-import { openBlamer } from './view';
+import { openBlamer, decorate } from './view';
 import BlamerContentProvider from './provider';
 
 async function openBlame(fileUri: string | vscode.Uri | undefined) {
@@ -33,6 +33,12 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('vscode-real-blamer.gitblame', openBlame)
 	);
+
+	vscode.window.onDidChangeActiveTextEditor(editor => {
+		if (editor && editor.document.uri.scheme === 'blamer') {
+			decorate(editor);
+		}
+	}, null, context.subscriptions);
 }
 
 export function deactivate() { }

@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 
 
-function decorate(editor: vscode.TextEditor) {
+export function decorate(editor: vscode.TextEditor) {
 
     const decorationType = vscode.window.createTextEditorDecorationType({
         backgroundColor: "green",
@@ -17,7 +17,7 @@ function decorate(editor: vscode.TextEditor) {
         const line = editor.document.lineAt(lineNumber);
         const range = new vscode.Range(line.range.start, line.range.start); // Rango de la línea actual
         //const range = new vscode.Range(lineNumber, 0, lineNumber, 0);
-        const text = `Blame info ${lineNumber + 1}`;
+        const text = "[Blame info]";
 
         const decoration = { range, renderOptions: { before: { contentText: text } } };
         decorations.push(decoration);
@@ -42,11 +42,11 @@ export async function openBlamer(filePath: string) {
     let doc = await vscode.workspace.openTextDocument(uri); // calls back into the provider
     await vscode.window.showTextDocument(doc, { preview: false });
 
-    if (vscode.window.activeTextEditor) {
-        decorate(vscode.window.activeTextEditor);
-    } else {
-        vscode.window.showWarningMessage('Unable to set decorations.');
-    }
+    // if (vscode.window.activeTextEditor) {
+    //     decorate(vscode.window.activeTextEditor);
+    // } else {
+    //     vscode.window.showWarningMessage('Unable to set decorations.');
+    // }
 
 }
 
