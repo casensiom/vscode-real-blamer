@@ -11,13 +11,9 @@ export async function openBlamer(filePath: string, hash: string) {
         return;
     }
 
-    let fileUri = vscode.Uri.file(setName(filePath));
+    let fileUri = buildUri(filePath, hash);
 
-    // This configuration will call the provider to fill the content,
-    // and the decorator to fill the decorations
-    let uri = fileUri.with({ scheme: 'blamer', query: 'hash', fragment: hash});
-
-    let doc = await vscode.workspace.openTextDocument(uri);
+    let doc = await vscode.workspace.openTextDocument(fileUri);
     await vscode.window.showTextDocument(doc, { preview: false });
 }
 
@@ -29,4 +25,13 @@ export function setName(path:string) : string {
 export function cleanName(path:string) : string {
     return path;
     // return path.replace('.blamer', '');
+}
+
+export function validScheme(path: vscode.Uri) : boolean {
+    return path.scheme === "blamer";
+}
+
+export function buildUri(path: string, hash: string) : vscode.Uri {
+    let fileUri = vscode.Uri.file(setName(path));
+    return fileUri.with({ scheme: 'blamer', query: 'hash', fragment: hash});
 }

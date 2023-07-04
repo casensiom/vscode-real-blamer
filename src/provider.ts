@@ -16,5 +16,9 @@ export default class BlamerContentProvider implements vscode.TextDocumentContent
         return info?.info.lines.map(l => { return l.content; }).join('\n') ?? "";
     }
 
+    onDidChangeEmitter = new vscode.EventEmitter<vscode.Uri>();
+    update(uri: vscode.Uri) {
+        this.onDidChangeEmitter.fire(uri);
+    }
 }
 

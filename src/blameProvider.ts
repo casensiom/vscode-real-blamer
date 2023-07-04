@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import {BlameResult, getBlameInfo} from './gitblame';
-import { cleanName } from './view';
+import { cleanName, validScheme } from './view';
 
 export type BlameProviderInfo = {
     file: vscode.Uri;
@@ -28,6 +28,8 @@ export default class BlameProvider  {
             return item;
         }
 
+        // TODO: lock until last invoke ends
+
         // TODO: try harder to get best root!
         let bestRoot: string = "";
         if (vscode.workspace.workspaceFolders) {
@@ -45,7 +47,11 @@ export default class BlameProvider  {
         return item;
     }
 
-    invalidate(path: vscode.Uri, hash: string) {
+    invalidate(path: vscode.Uri) {
+        if(!validScheme(path)) {
+            return;
+        }
+        const hash = path.fragment;
         const id = this.id(path, hash);
         let item = this._store.get(id);
         if(item && !item.dirty) {

@@ -1,12 +1,16 @@
 import * as vscode from 'vscode';
-import { openBlamer } from './view';
+import { buildUri, openBlamer, validScheme } from './view';
 import BlamerContentProvider from './provider';
 import { decorate } from './decorator';
+import BlameProvider from './blameProvider';
 
 async function openBlame(fileUri: string | vscode.Uri | undefined) {
 
-	if (typeof fileUri === undefined || !(fileUri instanceof vscode.Uri)) {
+	if (fileUri === undefined) {
 		fileUri = vscode.window.activeTextEditor?.document.uri;
+	}
+	if(typeof fileUri === 'string') {
+		fileUri = vscode.Uri.file(fileUri);
 	}
 	if (!fileUri) {
 		vscode.window.showWarningMessage('Select a file to blame.');
@@ -17,11 +21,12 @@ async function openBlame(fileUri: string | vscode.Uri | undefined) {
 		vscode.window.showWarningMessage('Already on a blame file.');
 		return;
 	}
-
-	console.log('Blame file: ' + fileUri);
-	await openBlamer(fileUri.fsPath, "");
+	if (fileUri?.scheme === 'file') {
+		console.log('Blame file: ' + fileUri);
+		await openBlamer(fileUri.fsPath, "");
+		return;
+	}
 }
-
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, your extension "vscode-real-blamer" is now active!');
@@ -35,9 +40,15 @@ export function activate(context: vscode.ExtensionContext) {
 	);
 
 	vscode.window.onDidChangeActiveTextEditor(editor => {
-		if (editor && editor.document.uri.scheme === 'blamer') {
+		if (editor && validScheme(editor.document.uri)) {
 			decorate(editor);
 		}
+	}, null, context.subscriptions);
+
+	vscode.workspace.onDidSaveTextDocument(event => {
+		const uri = buildUri(event.uri.fsPath, "");
+		BlameProvider.instance().invalidate(uri);
+		provider.update(uri);
 	}, null, context.subscriptions);
 }
 
