@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { BlameInfo, getBlameInfo } from './gitblame';
-import { openBlamer, decorate } from './view';
+import { openBlamer } from './view';
 import BlamerContentProvider from './provider';
+import { decorate } from './decorator';
 
 async function openBlame(fileUri: string | vscode.Uri | undefined) {
 
@@ -19,7 +19,7 @@ async function openBlame(fileUri: string | vscode.Uri | undefined) {
 	}
 
 	console.log('Blame file: ' + fileUri);
-	await openBlamer(fileUri.fsPath);
+	await openBlamer(fileUri.fsPath, "");
 }
 
 

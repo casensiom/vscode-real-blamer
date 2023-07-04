@@ -3,13 +3,13 @@ import * as cp from 'child_process';
 
 export interface BlameInfo {
     author: string;
-    author_mail: string;
-    author_time: string;
-    author_tz: string;
+    authorMail: string;
+    authorTime: string;
+    authorTz: string;
     committer: string;
-    committer_mail: string;
-    committer_time: string;
-    committer_tz: string;
+    committerMail: string;
+    committerTime: string;
+    committerTz: string;
     summary: string;
     previous: string;
     filename: string;
@@ -31,13 +31,13 @@ export interface BlameResult {
 function newBlameInfo(): BlameInfo {
     return {
         author: "",
-        author_mail: "",
-        author_time: "",
-        author_tz: "",
+        authorMail: "",
+        authorTime: "",
+        authorTz: "",
         committer: "",
-        committer_mail: "",
-        committer_time: "",
-        committer_tz: "",
+        committerMail: "",
+        committerTime: "",
+        committerTz: "",
         summary: "",
         previous: "",
         filename: ""
@@ -66,19 +66,19 @@ function parseBlameOutput(output: string): BlameResult {
         } else if (line.startsWith('author ')) {                 // author         AUTHOR NAME
             currentCommit.author = line.split(" ").slice(1).join(" ");
         } else if (line.startsWith('author-mail ')) {            // author-mail    <USER@HOST.com>
-            currentCommit.author_mail = line.split(" ")[1];
+            currentCommit.authorMail = line.split(" ")[1];
         } else if (line.startsWith('author-time ')) {            // author-time    1587553215
-            currentCommit.author_time = line.split(" ")[1];
+            currentCommit.authorTime = line.split(" ")[1];
         } else if (line.startsWith('author-tz ')) {              // author-tz      +0200
-            currentCommit.author_tz = line.split(" ")[1];
+            currentCommit.authorTz = line.split(" ")[1];
         } else if (line.startsWith('committer ')) {              // committer      AUTHOR NAME
             currentCommit.committer = line.split(" ").slice(1).join(" ");
         } else if (line.startsWith('committer-mail ')) {         // committer-mail <USER@HOST.com>
-            currentCommit.committer_mail = line.split(" ")[1];
+            currentCommit.committerMail = line.split(" ")[1];
         } else if (line.startsWith('committer-time ')) {         // committer-time 1587553215
-            currentCommit.committer_time = line.split(" ")[1];
+            currentCommit.committerTime = line.split(" ")[1];
         } else if (line.startsWith('committer-tz ')) {           // committer-tz   +0200
-            currentCommit.committer_tz = line.split(" ")[1];
+            currentCommit.committerTz = line.split(" ")[1];
         } else if (line.startsWith('summary ')) {                // summary        DESCRIPTION
             currentCommit.summary = line.split(" ").slice(1).join(" ");
         } else if (line.startsWith('previous ')) {               // previous       4175cec89e56eae8cf98c653ebc1bb44cc28136c README.md

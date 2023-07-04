@@ -1,18 +1,19 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { getBlameText } from './gitblame';
+import { cleanName } from './view';
+import BlameProvider from './blameProvider';
 
 export default class BlamerContentProvider implements vscode.TextDocumentContentProvider {
 
-    provideTextDocumentContent(uri: vscode.Uri, token: vscode.CancellationToken): vscode.ProviderResult<string> {
+    async provideTextDocumentContent(uri: vscode.Uri, token: vscode.CancellationToken): Promise<string> {
         let bestRoot: string = "";
         if (vscode.workspace.workspaceFolders) {
             bestRoot = vscode.workspace.workspaceFolders[0].uri.path;
         }
-
-        let fileUri = vscode.Uri.file(uri.fsPath.replace('.blamer', ''));
-
-        return getBlameText(fileUri.fsPath, bestRoot);
+        const hash = uri.fragment;
+        const info = await BlameProvider.instance().getBlameInfo(uri, hash);
+        return info?.info.lines.map(l => { return l.content; }).join('\n') ?? "";
     }
 
 }
