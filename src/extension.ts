@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { buildUri, openBlamer, validScheme } from './view';
-import BlamerContentProvider from './provider';
 import { decorate } from './decorator';
+import BlamerContentProvider from './provider';
 import BlameProvider from './blameProvider';
 
 async function openBlame(fileUri: string | vscode.Uri | undefined) {

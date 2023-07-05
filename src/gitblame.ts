@@ -1,7 +1,6 @@
-import * as vscode from 'vscode';
 import * as cp from 'child_process';
 
-export interface BlameInfo {
+export type BlameInfo = {
     author: string;
     authorMail: string;
     authorTime: string;
@@ -13,20 +12,20 @@ export interface BlameInfo {
     summary: string;
     previous: string;
     filename: string;
-}
+};
 
-export interface LineInfo {
+export type LineInfo = {
     commit: string;
-    line_number: string;
-    line_number_orig: string;
-    line_number_commit: string;
+    lineNum: number;
+    lineNumOrig: number;
+    lineNumCommit: number;
     content: string;
-}
+};
 
-export interface BlameResult {
+export type BlameResult = {
     lines: Array<LineInfo>;
     commits: Map<string, BlameInfo>;
-}
+};
 
 function newBlameInfo(): BlameInfo {
     return {
@@ -47,9 +46,9 @@ function newBlameInfo(): BlameInfo {
 function parseBlameOutput(output: string): BlameResult {
     let currentCommit: BlameInfo = newBlameInfo();
     let currentKey: string = "";
-    let number: string = "";
-    let number_orig: string = "";
-    let number_commit: string = "";
+    let num: number = 0;
+    let numOrig: number = 0;
+    let numCommit: number = 0;
 
     const blameMap: Map<string, BlameInfo> = new Map();
     let content: Array<LineInfo> = new Array();
@@ -60,9 +59,9 @@ function parseBlameOutput(output: string): BlameResult {
             const pieces: string[] = line.split(' ');
             currentKey = pieces[0];
             currentCommit = newBlameInfo();
-            number = pieces[2];
-            number_orig = pieces[1];
-            number_commit = (pieces.length > 3) ? pieces[3] : number;
+            num = Number(pieces[2]);
+            numOrig = Number(pieces[1]);
+            numCommit = (pieces.length > 3) ? Number(pieces[3]) : num;
         } else if (line.startsWith('author ')) {                 // author         AUTHOR NAME
             currentCommit.author = line.split(" ").slice(1).join(" ");
         } else if (line.startsWith('author-mail ')) {            // author-mail    <USER@HOST.com>
@@ -81,6 +80,7 @@ function parseBlameOutput(output: string): BlameResult {
             currentCommit.committerTz = line.split(" ")[1];
         } else if (line.startsWith('summary ')) {                // summary        DESCRIPTION
             currentCommit.summary = line.split(" ").slice(1).join(" ");
+        } else if (line.startsWith('boundary')) {                // boundary
         } else if (line.startsWith('previous ')) {               // previous       4175cec89e56eae8cf98c653ebc1bb44cc28136c README.md
             currentCommit.previous = line.split(" ")[1];
         } else if (line.startsWith('filename ')) {               // filename       README.md
@@ -96,10 +96,10 @@ function parseBlameOutput(output: string): BlameResult {
 
             content.push({
                 commit: currentKey,
-                line_number: number,
-                line_number_orig: number_orig,
-                line_number_commit: number_commit,
-                content: line
+                lineNum: num,
+                lineNumOrig: numOrig,
+                lineNumCommit: numCommit,
+                content: line.slice(1)
             });
             currentKey = "";
             currentCommit = newBlameInfo();
@@ -133,28 +133,3 @@ export function getBlameInfo(filePath: string, rootPath: string | undefined): Pr
         });
     });
 }
-
-
-export function getBlameText(filePath: string, rootPath: string | undefined): vscode.ProviderResult<string> {
-    return new Promise((resolve, reject) => {
-        const command = `git blame --porcelain ${filePath}`;
-
-        cp.exec(command, {
-            cwd: rootPath
-        }, (error, stdout, stderr) => {
-            if (error) {
-                reject(new Error(`Error executing 'git blame': ${error.message}`));
-                return;
-            }
-
-            if (stderr) {
-                reject(new Error(`Error in 'git blame' output: ${stderr}`));
-                return;
-            }
-
-            const text = parseBlameOutput(stdout).lines.map(l => { return l.content; }).join('\n');
-            resolve(text);
-        });
-    });
-}
-

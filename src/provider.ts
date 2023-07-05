@@ -1,7 +1,4 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import { getBlameText } from './gitblame';
-import { cleanName } from './view';
 import BlameProvider from './blameProvider';
 
 export default class BlamerContentProvider implements vscode.TextDocumentContentProvider {
