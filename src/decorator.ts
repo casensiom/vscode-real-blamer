@@ -49,7 +49,7 @@ export async function decorate(editor: vscode.TextEditor) {
         for(const line of info.info.lines) {
             const range = new vscode.Range(Number(line.lineNum)-1, 0, 
                                            Number(line.lineNum)-1, line.content.length);
-            let text = line.commit.substring(0, 8) + " ";
+            let text = '\u00a0' + line.commit.substring(0, 8) + '\u00a0';
             let overText = "";
             let lineText = "";
             let blame = info.info.commits.get(line.commit);
@@ -62,25 +62,30 @@ export async function decorate(editor: vscode.TextEditor) {
                 lineText = authorName + " " + time;
             }
             
+            const md = new vscode.MarkdownString(overText, true);
+            md.supportHtml = true;
+            md.isTrusted = true;
+
             const decoration = { range, 
-                hoverMessage: overText,
+                hoverMessage: md,
                 renderOptions: { 
                     before: { 
                         contentText: text,
-                        color: '#BCBCBCFF',
-                        backgroundColor: '#303030FF',
-                        fontWeight: 'normal',
+                        fontWeight: 'bold',
                         fontStyle: 'normal',
-                        borderColor: '#FF00FFFF',
+                        color: new vscode.ThemeColor('input.foreground'),
+                        backgroundColor: new vscode.ThemeColor('input.background'),
+                        borderColor: new vscode.ThemeColor('editor.selectionBackground'),
                         borderStyle: 'solid',
                         borderWidth: '0 2px 0 0',
-                        margin: '0 1em -2px 0'
-                    },
-                    after: {
-                        contentText: lineText,
-                        color: '#303030FF',
-                        margin: '0 0 0 1em'
+                        margin: '0 1em 0 0',
+                        height: '100%'
                     }
+                    // ,after: {
+                    //     contentText: lineText,
+                    //     color: '#303030FF',
+                    //     margin: '0 0 0 1em'
+                    // }
                 } 
             };
 
