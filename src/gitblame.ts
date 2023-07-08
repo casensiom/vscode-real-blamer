@@ -112,9 +112,10 @@ function parseBlameOutput(output: string): BlameResult {
     };
 }
 
-export function getBlameInfo(filePath: string, rootPath: string | undefined): Promise<BlameResult> {
+export function getBlameInfo(filePath: string, rootPath: string | undefined, hash: string): Promise<BlameResult> {
     return new Promise((resolve, reject) => {
-        const command = `git blame --porcelain ${filePath}`;
+        const command = `git blame ${hash ?? ""} --porcelain -- ${filePath}`;
+        console.log("[DEBUG] blame command: " + command);
 
         cp.exec(command, {
             cwd: rootPath

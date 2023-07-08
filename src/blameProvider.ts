@@ -36,7 +36,7 @@ export default class BlameProvider  {
             bestRoot = vscode.workspace.workspaceFolders[0].uri.path;
         }
 
-        const blame : BlameResult = await getBlameInfo(cleanName(path.path), bestRoot /*, hash*/);
+        const blame : BlameResult = await getBlameInfo(cleanName(path.path), bestRoot, hash);
         item = {
             file:  path,
             hash:  hash,

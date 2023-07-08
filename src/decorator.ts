@@ -15,11 +15,24 @@ export async function decorate(editor: vscode.TextEditor) {
     const decorations: vscode.DecorationOptions[] = [];
     if(info) {
         for(const line of info.info.lines) {
-            const range = new vscode.Range(Number(line.line_number)-1, 0, 
-                                           Number(line.line_number)-1, line.content.length);
+            const range = new vscode.Range(Number(line.lineNum)-1, 0, 
+                                           Number(line.lineNum)-1, line.content.length);
             const text = "[" + line.commit.substring(0, 8) + "]";
 
-            const decoration = { range, renderOptions: { before: { contentText: text } } };
+            const command = "vscode-real-blamer.gitblame";
+            const args = editor.document.uri.with({scheme: 'file', query: '',  fragment: line.commit.substring(0, 8) });
+            const overText = `&nbsp;${text} [$(versions)](command:${command}?${encodeURIComponent(JSON.stringify(args))})`;
+
+
+            const md = new vscode.MarkdownString(overText, true);
+            md.supportHtml = true;
+            md.isTrusted = true;
+
+            const decoration = { 
+                range, 
+                hoverMessage: md,
+                renderOptions: { before: { contentText: text } } 
+            };
             decorations.push(decoration);
         }
     }

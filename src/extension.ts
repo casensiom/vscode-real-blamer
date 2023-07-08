@@ -21,9 +21,10 @@ async function openBlame(fileUri: string | vscode.Uri | undefined) {
 		vscode.window.showWarningMessage('Already on a blame file.');
 		return;
 	}
+
 	if (fileUri?.scheme === 'file') {
 		console.log('Blame file: ' + fileUri);
-		await openBlamer(fileUri.fsPath, "");
+		await openBlamer(fileUri.fsPath, fileUri?.fragment || "");
 		return;
 	}
 }
