@@ -1,5 +1,7 @@
 # vscode-real-blamer
 
+[![Version](https://img.shields.io/badge/version-0.0.1-blue)](https://github.com/casensiom/vscode-real-blamer)
+
 Blame tool for Visual Studio Code
 
 ## Description
@@ -11,4 +13,7 @@ Since this is a learning process, it won't be helpful in the short term. It is e
 
 ## Main Features
 
-none yet
+ - Open blame info from any open file.
+ - Shows commit hash per line.
+ - Hover message with information from author, date and summary.
+ - Button on hover message to open the blame at the line's commit.
