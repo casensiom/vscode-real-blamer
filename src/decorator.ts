@@ -64,7 +64,7 @@ export async function decorate(editor: vscode.TextEditor) {
 
             const command = "vscode-real-blamer.gitblame";
             const hash = line.commit.substring(0, 8);
-            const hashParent = line.commit.substring(0, 8) + "^";
+            const hashParent = hash + "^";
             const argsCommit = editor.document.uri.with({scheme: 'file', query: '',  fragment: hash });
             const argsParent = editor.document.uri.with({scheme: 'file', query: '',  fragment: hashParent });
             hoverText += `\n\n &nbsp;${text}`;
