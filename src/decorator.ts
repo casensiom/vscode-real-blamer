@@ -63,8 +63,13 @@ export async function decorate(editor: vscode.TextEditor) {
             }
 
             const command = "vscode-real-blamer.gitblame";
-            const args = editor.document.uri.with({scheme: 'file', query: '',  fragment: line.commit.substring(0, 8) });
-            hoverText += `&nbsp;${text} [$(versions)](command:${command}?${encodeURIComponent(JSON.stringify(args))})`;
+            const hash = line.commit.substring(0, 8);
+            const hashParent = hash + "^";
+            const argsCommit = editor.document.uri.with({scheme: 'file', query: '',  fragment: hash });
+            const argsParent = editor.document.uri.with({scheme: 'file', query: '',  fragment: hashParent });
+            hoverText += `\n\n &nbsp;${text}`;
+            hoverText += `&nbsp; | &nbsp; [$(git-commit)](command:${command}?${encodeURIComponent(JSON.stringify(argsCommit))} "Open at ${hash}")`;
+            hoverText += `&nbsp; | &nbsp; [$(versions)](command:${command}?${encodeURIComponent(JSON.stringify(argsParent))} "Open at parent ${hashParent}")`;
 
             const md = new vscode.MarkdownString(hoverText, true);
             md.supportHtml = true;
